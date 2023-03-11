@@ -3,6 +3,7 @@ from pygame.sprite import Group
 
 from objects.player import Player
 
+
 class Scoreboard():
 
     def __init__(self, settings, screen, stats):

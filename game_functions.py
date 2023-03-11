@@ -2,31 +2,31 @@ import sys
 import pygame
 from time import sleep
 
-from objects.rectangle import Rectangle
+from objects.bullet import Bullet
 from objects.stone import Stone
 
-def checkEvents(settings, screen, stats, sb, play_button, player, stones, rectangles):
+def checkEvents(settings, screen, stats, sb, play_button, player, stones, bullets):
     for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
             elif event.type == pygame.KEYDOWN:
-                checkKeyDownEvents(event, settings, screen, player, rectangles)
+                checkKeyDownEvents(event, settings, screen, player, bullets)
             elif event.type == pygame.KEYUP:
                 checkKeyUpEvents(event, player)
             elif event.type == pygame.K_q:
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
-                checkPlayButton(settings, screen, stats, sb, play_button, player, stones, rectangles, mouse_x, mouse_y)
+                checkPlayButton(settings, screen, stats, sb, play_button, player, stones, bullets, mouse_x, mouse_y)
 
 
-def checkKeyDownEvents(event, settings, screen, player, rectangles):
+def checkKeyDownEvents(event, settings, screen, player, bullets):
     if event.key == pygame.K_RIGHT:
         player.move_right = True
     elif event.key == pygame.K_LEFT:
         player.move_left = True
     elif event.key == pygame.K_SPACE:
-        createRectangle(settings, screen, player, rectangles)
+        createBullets(settings, screen, player, bullets)
               
 
 def checkKeyUpEvents(event, player):
@@ -36,7 +36,7 @@ def checkKeyUpEvents(event, player):
         player.move_left = False
 
 
-def checkPlayButton(settings, screen, stats, sb, play_button, player, stones, rectangles, mouse_x, mouse_y):
+def checkPlayButton(settings, screen, stats, sb, play_button, player, stones, bullets, mouse_x, mouse_y):
     button_clicked = play_button.rect.collidepoint(mouse_x, mouse_y)
     
     if button_clicked and not stats.game_active:
@@ -52,7 +52,7 @@ def checkPlayButton(settings, screen, stats, sb, play_button, player, stones, re
         sb.prepPlayer()
 
         stones.empty()
-        rectangles.empty()
+        bullets.empty()
 
         createMultipleStones(settings, screen, player, stones)
         player.centerPlayer()
@@ -100,27 +100,27 @@ def checkStonesEdges(settings, stones):
             break
 
 
-def checkStonesBottom(settings, screen, stats, sb, player, stones, rectangles):
+def checkStonesBottom(settings, screen, stats, sb, player, stones, bullets):
     screen_rect = screen.get_rect()
     
     for stone in stones.sprites():
         if stone.rect.bottom >= screen_rect.bottom:
-            playerHit(settings, screen, stats, sb, player, stones, rectangles)
+            playerHit(settings, screen, stats, sb, player, stones, bullets)
             break
 
 
-def updateStones(settings, screen, stats, sb, player, stones, rectangles):
+def updateStones(settings, screen, stats, sb, player, stones, bullets):
     checkStonesEdges(settings, stones)
     stones.update()
 
     if pygame.sprite.spritecollideany(player, stones):
-        playerHit(settings, screen, stats, sb, player, stones, rectangles)
+        playerHit(settings, screen, stats, sb, player, stones, bullets)
     
-    checkStonesBottom(settings, screen, stats, sb, player, stones, rectangles)
+    checkStonesBottom(settings, screen, stats, sb, player, stones, bullets)
 
 
-def checkCollisions(settings, screen, stats, sb, player, stones, rectangles):
-    collisions = pygame.sprite.groupcollide(rectangles, stones, True, True)
+def checkCollisions(settings, screen, stats, sb, player, stones, bullets):
+    collisions = pygame.sprite.groupcollide(bullets, stones, True, True)
 
     if collisions:
         for stone in collisions.values():
@@ -129,7 +129,7 @@ def checkCollisions(settings, screen, stats, sb, player, stones, rectangles):
         checkHighScore(stats, sb)
 
     if len(stones) == 0:
-        rectangles.empty()
+        bullets.empty()
         
         settings.increaseSpeed()
         stats.level += 1
@@ -138,29 +138,29 @@ def checkCollisions(settings, screen, stats, sb, player, stones, rectangles):
         createMultipleStones(settings, screen, player, stones)
 
 
-def updateRectangles(settings, screen, stats, sb, player, stones, restangles):
+def updateBullets(settings, screen, stats, sb, player, stones, restangles):
     restangles.update()
 
-    for rectangle in restangles.copy():
-        if rectangle.rect.bottom <= 0:
-            restangles.remove(rectangle)
+    for bullet in restangles.copy():
+        if bullet.rect.bottom <= 0:
+            restangles.remove(bullet)
     
     checkCollisions(settings, screen, stats, sb, player, stones, restangles)  
 
 
-def createRectangle(settings, screen, player, rectangles):
-    if len(rectangles) < settings.rectangles_allowed:
-        new_rectangle = Rectangle(settings, screen, player)
-        rectangles.add(new_rectangle) 
+def createBullets(settings, screen, player, bullets):
+    if len(bullets) < settings.bullets_allowed:
+        new_bullet = Bullet(settings, screen, player)
+        bullets.add(new_bullet) 
 
 
-def playerHit(settings, screen, stats, sb, player, stones, rectangles):
-    if stats.player_left > 0:
+def playerHit(settings, screen, stats, sb, player, stones, bullets):
+    if stats.player_left > 1:
         stats.player_left -= 1
 
         sb.prepPlayer()
         stones.empty()
-        rectangles.empty()
+        bullets.empty()
 
         createMultipleStones(settings, screen, player, stones)
         player.centerPlayer()
@@ -181,18 +181,18 @@ def checkHighScore(stats, sb):
         sb.prepHighScore()
 
 
-def updateScreen(settings, screen, stats, sb, player, stones, rectangles, play_button):
+def updateScreen(settings, screen, stats, sb, player, stones, bullets, play_button):
     screen.fill(settings.bg_color)
 
-    for rectangle in rectangles:
-        rectangle.draw()
+    for bullet in bullets:
+        bullet.draw()
     
     player.draw()
     stones.draw(screen)
     sb.showScore()
 
     if not stats.game_active:
-        if stats.player_left == 0:
+        if stats.player_left == 1:
             play_button.prepMsg("Try again")
         play_button.drawButton()
 

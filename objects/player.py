@@ -10,7 +10,6 @@ class Player(Sprite):
 
         self.image = pygame.image.load('images\player.png').convert_alpha()
         self.image = pygame.transform.scale(self.image, (40, 40))
-        #self.rect = pygame.rect.Rect((10, 10, 40, 40))
         
         self.rect = self.image.get_rect()
         self.screen_rect = screen.get_rect()
@@ -37,5 +36,4 @@ class Player(Sprite):
 
 
     def draw(self):
-        #pygame.draw.rect(self.screen, (0, 0, 128), self.rect)
         self.screen.blit(self.image, self.rect)

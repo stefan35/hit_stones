@@ -6,7 +6,8 @@ from stats.game_stats import GameStats
 from stats.scoreboard import Scoreboard
 from settings import Settings
 from objects.player import Player
-from button import Button
+from objects.button import Button
+
 
 def runGame():
     pygame.init()
@@ -14,7 +15,7 @@ def runGame():
     screen = pygame.display.set_mode((settings.screen_width, settings.screen_height))
     
     player = Player(settings, screen)
-    rectangles  = Group()
+    bullets  = Group()
     stones = Group()
     gf.createMultipleStones(settings, screen, player, stones)
 
@@ -23,23 +24,15 @@ def runGame():
     pygame.display.set_caption("Hit Stones")
     play_button = Button(screen, "Play")
 
-    while 1:
-        gf.checkEvents(settings, screen, stats, sb, play_button, player, stones, rectangles)
+    while True:
+        gf.checkEvents(settings, screen, stats, sb, play_button, player, stones, bullets)
 
         if stats.game_active:
             player.update()
-            gf.updateRectangles(settings, screen, stats, sb, player, stones, rectangles)
-            gf.updateStones(settings, screen, stats, sb, player, stones, rectangles)
+            gf.updateBullets(settings, screen, stats, sb, player, stones, bullets)
+            gf.updateStones(settings, screen, stats, sb, player, stones, bullets)
         
-        gf.updateScreen(settings, screen, stats, sb, player, stones, rectangles, play_button)
+        gf.updateScreen(settings, screen, stats, sb, player, stones, bullets, play_button)
 
 
 runGame()
-
-"""
-pip install pyinstaller
-
-cd YourFilePath
-
-pyinstaller --onefile YourFileName
-"""
