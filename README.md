@@ -2,7 +2,11 @@
 
 With player hit all the stones. You have 3 attempts to get highest score. Python was used to create this game.
 
-You can dwnload whole dist folder and run .exe then you can play this game. 
+### How to run
+
+You can dwnload dist folder and run file main.exe to play this game. 
+
+### Controls
 
 Controls for Player
  - left and right arrows
